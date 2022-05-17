@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyVersion>0.9.01.00</AssemblyVersion>
+    <FileVersion></FileVersion>
+    <Version>0.9.01.000</Version>
+    <Authors>Iman.Esmaili</Authors>
+    <Description>An unofficial simple and reusable implementation of datatable for .net with tag helper and a sound customization capabilities and build in ajax pagination support</Description>
+    <PackageProjectUrl>github.com/ghaagh/Datatable.Dotnet</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+  </ItemGroup>
+
+</Project>
