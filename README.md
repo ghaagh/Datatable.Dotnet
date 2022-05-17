@@ -785,7 +785,7 @@ Note that the _queryHelper is using dynamic linq in my case. you can implement w
 ```
 
 Based on your response type and your ColumnBuilder Input you should see something like this:
-[Final view](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet.PNG)
+![Final view](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet.PNG)
 
  The javascript part is as minimal as possible. Happy coding/ copying/ changing/ complaining/ whatever.
 
