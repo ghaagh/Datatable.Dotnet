@@ -4,6 +4,10 @@ Datatable js is the most popular table generator with pagination support in the 
 
 Here is a customizable implementation of Datatable js with built-in ajax support, tag helper, and sound customization which can be enhanced by you.
 
+**Note: This ReadMe file is for user who want to use the source files. For nuget package ReadMe, please visit [Nuget ReadMe.md](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/ReadMe.md)**
+
+
+---
 ## Problem
 I had a mission to create a .net core project for bootstrapping my friend's future projects. For his previous projects, he used .Net Framework with 
 Telerik for the tables. Telerik is a well-thought library and it is easy to use. It is hard to convince someone to stop using that and write javascript! 
