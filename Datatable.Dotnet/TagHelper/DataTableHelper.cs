@@ -239,7 +239,7 @@ $(function(){{
             {
                 customHeaderBuilder.AppendFormat(@"
 <input class=""column-search""  type=""text"" data-column=""{0}"" placeholder=""{1}"" />
-", index - 1, "جستجو در" + column.HeaderName);
+", index - 1, string.Format(setting.Header.OwnSearch, column.HeaderName));
             }
 
         }

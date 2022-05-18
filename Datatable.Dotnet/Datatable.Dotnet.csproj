@@ -8,7 +8,7 @@
     <AssemblyVersion>0.9.01.00</AssemblyVersion>
     <FileVersion></FileVersion>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <Version>0.9.02.002</Version>
+    <Version>0.9.02.004</Version>
     <Authors>Iman.Esmaili</Authors>
     <Description>An unofficial simple and reusable implementation of datatable for .net with tag helper and a sound customization capabilities and build in ajax pagination support</Description>
     <PackageProjectUrl>github.com/ghaagh/Datatable.Dotnet</PackageProjectUrl>

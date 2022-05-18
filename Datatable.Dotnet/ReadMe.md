@@ -59,6 +59,15 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
     }
   }
 ```
+```
+|Setting Field | Explanation|
+|-|-|
+|**Language**| The whole object is a mapped object from Datatable.Js language JSON. Extra information can be found on [Datatable.Net Languages](https://datatables.net/examples/basic_init/language.html).
+|**DefaultPageSize**| When the Page size in our code is not specified, our tag helper will use this parameter as a default value.
+|**Header.OrderAscHtml** and **Header.OrderDescHtml**| For customizing the **asc** and **desc** button on the header for the field that have **Sort** enabled|
+|**All**| This text will be replaced in **Enum** and **Checkbox** Column types as a default filter for all results.
+|**DateColumnPluginCall**| This line will be the place for calling your desired **DatePicker** plugin. If you don't want that. Empty the string|
+|**Checked** and **Unchecked**| Specific to **Checkbox** column type and for creating search Filter with dropdown. Note that the Filter will also contain "Header.All" 
 4. In your Program.cs, add DatatableSetting to dependency injection like this:
 ```
     builder.Services.Configure<DatatableSetting>(builder
@@ -110,6 +119,19 @@ IEnumarable<Columns> input = new DatatableColumnBuilder()
             .AddCustomColumn("Operations", null, "renderButtons", false, false, false)
             .Build();
 ```
+### Column Properties
+
+|Property| Explanation  |
+|--|--|
+|**Field**  |the name of the field. for example, if I am getting a list of products from the server, 'ProductName' is the field. this is the field name not its value.  |
+|**Sort**|Specifies wether the column has sort buttons or not.|
+|**HasOwnSearch**| Specifies whether the column has its own search in the header or not.|
+|**ClickFunctionName**|specific to Checkbox type. It can carry a javascript function to be called after a click on the checkbox. for example it can be useful for instant enabling and disabling records.|
+|**HeaderName**| the string that will be shown in generated Datatable header for the column.|
+|**RenderFunction**|specific to the **Custom** column types. It can be a whole javascript function or just its name.|
+|**Disabled**|Specific for **checkbox** column types.|
+|**EnumDictionary**|Specific to **Enum** Column types to show a user-friendly enum text instead of just number or joint strings.|
+
 
 **Note**: Remember that this part is not connecting to any database, and It is just creating the columns definitions for passing to tag helper.
 
