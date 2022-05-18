@@ -22,17 +22,7 @@ public class ColumnSearch
     public string Field { get; set; }
     public string Keyword { get; set; }
 }
-public class DataTableResult<T>
-{
-    [JsonPropertyName("data")]
-    public IEnumerable<T> Data { get; set; }
-    [JsonPropertyName("draw")]
-    public int Draw { get; set; }
-    [JsonPropertyName("recordsTotal")]
-    public int RecordsTotal { get; set; }
-    [JsonPropertyName("recordsFiltered")]
-    public int RecordsFiltered { get; set; }
-}
+
 public class Order
 {
     public string Column { get; set; }

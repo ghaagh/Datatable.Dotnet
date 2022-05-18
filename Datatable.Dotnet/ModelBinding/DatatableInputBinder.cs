@@ -1,5 +1,4 @@
-﻿using Datatable.Dotnet;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Datatable.Dotnet.ModelBinding;
