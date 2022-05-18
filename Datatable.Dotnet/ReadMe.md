@@ -9,14 +9,14 @@ This Package is an **unofficial** easy to use implementation of [DataTable.js](h
 1.  Add neessary Javascript and Style libraries from the [official website](https://datatables.net/) to your web page/ View  or _Layout.cshtml.
 2. Depending on what type of .Net project you are using, Add this lines  of code to the end of **.AddMvcControllersWithView()** Or **AddRazorPages()**
 ```builder.Services.AddRazorPages().AddMvcOptions(options => {
-        options.ModelBinderProviders.Insert(1, new DataTableInputBinderProvider());
+        options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
 });
 ```
 
 
 ``` 
 builder.Services.AddControllersWithViews().AddMvcOptions(options => {
-    options.ModelBinderProviders.Insert(1, new DataTableInputBinderProvider());
+    options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
 });
 ```
 
