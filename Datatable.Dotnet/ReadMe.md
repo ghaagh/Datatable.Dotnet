@@ -59,7 +59,7 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
     }
   }
 ```
-```
+
 |Setting Field | Explanation|
 |-|-|
 |**Language**| The whole object is a mapped object from Datatable.Js language JSON. Extra information can be found on [Datatable.Net Languages](https://datatables.net/examples/basic_init/language.html).
