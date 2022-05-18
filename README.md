@@ -1,23 +1,22 @@
 # Datatable.Dotnet
-Datatable js is the most popular table generator with pagination support in front-end world.
+Datatable js is the most popular table generator with pagination support in the front-end world.
 
 
-Here is a customizable implementation of Datatable js with built-in ajax support, tag helper and a sound customization which can be enhanced by you.
-You can use it, copy it, fork it, I really don't care.
+Here is a customizable implementation of Datatable js with built-in ajax support, tag helper, and sound customization which can be enhanced by you.
 
 ## Problem
-I had a mission to create a .net core project for bootstraping my friend's future projects. For his previous projects he used .Net Framework with 
-telerik for the tables. Telerik is a well thought library and it is easy to use. It is hard to convice someone to stop using that and write javascript! 
-So the solution was developing a tag helper with absolute minimum of javascript writing. 
+I had a mission to create a .net core project for bootstrapping my friend's future projects. For his previous projects, he used .Net Framework with 
+Telerik for the tables. Telerik is a well-thought library and it is easy to use. It is hard to convince someone to stop using that and write javascript! 
+So the solution was to develop a tag helper with the absolute minimum of javascript writing. 
 
 ## Starting the job
-I Add Datatable javascript and css style with bootstrap theme to the layout page of my project. You can use the selected theme or add a custom style.
+I Add Datatable javascript and CSS style with Bootstrap theme to the layout page of my project. You can use the selected theme or add a custom style.
 
 ## Binding the Datatable Request.
 
-For the start, I added a simple class for Datatable request that can be found here: 
+For the start, I added a simple class for Datatable requests that can be found here: 
 [DataTableInput.cs](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/DataTableInput.cs).\
-As you can see below, it contains the global search keyword, column search, ordering and pagination data which will be send by datatable.js.\
+As you can see below, it contains the global search keyword, column search, ordering, and pagination data which will be sent by datatable.js.
 ```
 using System.Text.Json.Serialization;
 
@@ -43,17 +42,6 @@ public class ColumnSearch
     public string Field { get; set; }
     public string Keyword { get; set; }
 }
-public class DataTableResult<T>
-{
-    [JsonPropertyName("data")]
-    public IEnumerable<T> Data { get; set; }
-    [JsonPropertyName("draw")]
-    public int Draw { get; set; }
-    [JsonPropertyName("recordsTotal")]
-    public int RecordsTotal { get; set; }
-    [JsonPropertyName("recordsFiltered")]
-    public int RecordsFiltered { get; set; }
-}
 public class Order
 {
     public string Column { get; set; }
@@ -65,12 +53,13 @@ public class Search
     public string Value { get; set; }
 }
 ```
-Ok, mow, As you probably know the way datatable.js is requesting the data is pretty messed up!. Dotnet model binding was not going to help me here.
+Ok. Now, As you probably know the way datatable.js is requesting the data is pretty messed up! Dotnet model binding was not going to help me here.
 
 There is an option to get the data from IHttpContextAccessor in the controller/Page but it is not pretty. So I decided to add a custom model binding to convert 
 this data to the destination class. This binder can be found here:
 [DataTableInputBinder](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/ModelBinding/DatatableInputBinder.cs).
-In this class I am getting the keys from the datatable.js request and then getting the value for every field and filling my input with these values.
+
+In this class, I am getting the keys from the datatable.js request and then getting the value for every field and filling my input with these values.
 ```
 using Datatable.Dotnet;
 using Microsoft.AspNetCore.Http;
@@ -146,14 +135,17 @@ public class DatatableInputBinder : IModelBinder
     }
 }
 ```
-For adding this custom binding to a controller/page input, There is two options.
-I could use [ModelBinder(BinderType = typeof(DatatableInputBinder))] at the top of 
-the  class or object, or we could separate the logic into a BinderProvider file. 
+For adding this custom binding to a controller/page input, There are two options.
+I could use **[ModelBinder(BinderType = typeof(DatatableInputBinder))]** at the top of 
+my class or object, or I could separate the logic into a **BinderProvider** file. 
+
 Because I wanted to keep the controllers and pages as clean and minimal as possible, I added a Binder Provider to handle the binding 
 job outside the controller and without using annotation.
-the code for provider is here 
+the code for the provider is here 
 [DatatableInputBinderProvider](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/ModelBinding/DataTableInputBinderProvider.cs).
-The code is pretty self explainatory. I am returning the previusly written Binder if the type of the input is DatatbleInput.
+
+
+The code is pretty self-explanatory. I am returning the previously written **DatatableInputBinder** if the type of the input is DatatbleInput.
 ```
 using Datatable.Dotnet;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -181,7 +173,7 @@ public class DataTableInputBinderProvider : IModelBinderProvider
 
 ```
 
-Ok, Now it is better. The last thing I did to finish this part was adding the Provider to my Program.cs File. I added this code to both Mvc and Razor Page 
+Ok, now it is better. The last thing I did to finish this part was add the Provider to my Program.cs File. I added this code to both MVC and Razor Page 
 so it can be used in both controller methods and razor page handlers.
 ```
 builder.Services.AddRazorPages().AddMvcOptions(options => {
@@ -192,9 +184,10 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
 });
 ```
 
-## ColumnBuilder
-Now that the request part of the code is over, I moved to real part. Response!. I added a 
-[ColumnTypeEnum](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/ColumnTypeEnum.cs) 
+## Generating Column List
+Now that the request part of the code is over, I moved to the real part. Generating the script with C#. First, 
+
+1. I added a [ColumnTypeEnum](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/ColumnTypeEnum.cs)  to contain all different types of columns possible
 ```
 namespace Datatable.Dotnet;
 
@@ -207,11 +200,17 @@ public enum ColumnTypeEnum
     Custom
 }
 ```
-as it is abvious, Based on my need these are the only column types I need for creating a custom datatable. the string is the main one which represent every normal 
-'JUST-SHOW-IT' field from the server. Custom, on the other hand, is completely open-ended and can be used for every custom display like buttons etc. Date is like
-string with an exeption that is its search. I wanted to search inside the fields with a plugin like datepicker. Others are self-explainatory.
+|ColumnTypeEnum value|Desired Behaviour|
+-|-
+|**String**|  The main column type which represents every normal 'JUST-SHOW-IT' field from the server| Just
+|**Date**|  Just like Strings with support for Javascript datepicker plugins. The header can support selecting dates with javascript libraries|
+|**Checkbox**| Dedicated to show the value in checkbox format. It will have the support of calling javascript function when user clicks on the checkbox|
+|**Enum**| Showing enum Data properly with user friendly Description for every type
+|**Custom**| Completely open-ended with support of showing any type of column with simple javascript function|
 
-Here is the Column class that contains  information about how to customize the column in datatable.
+2. Now it is the time for defining the Columns
+Here is the Column class that contains information about how the table columns will be generated.
+
 ```
 namespace Datatable.Dotnet
 {
@@ -234,18 +233,19 @@ namespace Datatable.Dotnet
     }
 }
 ```
-Field: the name of the field. for example if I am getting a list of products from the server, 'ProductName' is the field. this is field name not its value.
-Sort: The column has sort buttons or not.
-ClickFunctionName: specific to chekbox type. It can carry a javascript function to be called after a click on checkbox. for example
-it can be usefull for instant enabling and disabling
-records.
-HeaderName: the th string for the column in datatable.
-RenderFunction: specific to custom type. It can be a whole javascript function or just its name.
-Disabled: also specific for checkbox type.
-EnumDictionary: to show a user friendly enum text instead of just number or joint strings.
+|Property| Explanation  |
+|--|--|
+|**Field**  |the name of the field. for example, if I am getting a list of products from the server, 'ProductName' is the field. this is the field name not its value.  |
+|**Sort**|Specifies wether the column has sort buttons or not.|
+|**HasOwnSearch**| Specifies whether the column has its own search in the header or not.
+|**ClickFunctionName**|specific to Checkbox type. It can carry a javascript function to be called after a click on the checkbox. for example it can be useful for instant enabling and disabling records.
+|**HeaderName**| the string that will be shown in generated Datatable header for the column.
+|**RenderFunction**|specific to the **Custom** column types. It can be a whole javascript function or just its name.
+|**Disabled**|Specific for **checkbox** column types.
+|**EnumDictionary**|Specific to **Enum** Column types to show a user-friendly enum text instead of just number or joint strings.
 
 
-Ok, The column definition is done. But there are a lot of specific fields for specific column types. So I added a column Builder to help the client to create a list.
+Ok, The column definition is done. But there are a lot of specific fields for specific column types and It can be confusing for the client who is using the code. So I added a [DatatableColumnBuilder](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/DatatableColumnBuilder.cs) to help the client to create a list.
 ```
 
 namespace Datatable.Dotnet
@@ -318,7 +318,20 @@ namespace Datatable.Dotnet
 }
 
 ```
-With this, If a user want to create a list of complex columns, it is as simple as this code.
+Say the client want to show a list of products to user. He/She wants to use a ViewModel called ProductViewModel. the ProductViewModel contains fields like these:
+```
+    public class ProductViewModel
+    {
+        public int Id { get; set; }
+        public ProductTypeEnum ProductType { get; set; }
+        public string Name { get; set; }
+        public PersianDateTime Date { get; set; }
+        public string Desciption { get; set; }
+        public bool Visible { get; set; }
+        public virtual IEnumerable<string> ProductTags { get; set; }
+    }
+```
+Then for creating a list of column for this viewModel all the user has to do is to use the DatatableColumnBuilder  in his/her get() handler or MVC controller method like this and return the generated column list to View or Page.
 ```
         IEnumarable<Columns> input = new DatatableColumnBuilder()
             .AddTextColumn("Identification", nameof(ProductViewModel.Id))
@@ -337,12 +350,19 @@ With this, If a user want to create a list of complex columns, it is as simple a
             .AddCustomColumn("Operations", null, "renderButtons", false, false, false)
             .Build();
 ```
-as you can see, I added a bunch of strings, a checkbox, an enum with custom dictionary and a button group to the input and then I call Build() to
-return a column List. with this the response part is done!
+
+**NOTE**
+
+1. after all columns are added, you still need to call Build() to get the list of columns.
+2. The column Builder is just returning a list of Columns, It is not connecting to any database yet.
+
+
+
+
 
 ## Setting
 
-There are a lot of possible customization . But for the first version. I thought these are enough. 
+There are a lot of possible customizations. But for the first version. I thought these are enough. 
 So I added these to my appsettings.config. 
 
 ```
@@ -384,7 +404,16 @@ So I added these to my appsettings.config.
     }
   },
 ```
-The class representation of the json is
+|Setting Field | Explanation|
+|-|-|
+|**Language**| The whole object is a mapped object from Datatable.Js language JSON. Extra information can be found on [Datatable.Net Languages](https://datatables.net/examples/basic_init/language.html).
+|**DefaultPageSize**| When the Page size in our code is not specified, our tag helper will use this parameter as a default value.
+|**Header.OrderAscHtml** and **Header.OrderDescHtml**| For customizing the **asc** and **desc** button on the header for the field that have **Sort** enabled|
+|**All**| This text will be replaced in **Enum** and **Checkbox** Column types as a default filter for all results.
+|**DateColumnPluginCall**| This line will be the place for calling your desired **DatePicker** plugin. If you don't want that. Empty the string|
+|**Checked** and **Unchecked**| Specific to **Checkbox** column type and for creating search Filter with dropdown. Note that the Filter will also contain "Header.All" value for showing all results.|
+|**OwnSearch**| A placeholder for the column filter for **String** and **Date** columns. If {0} exists in this setting, it will be replaced by Column **HeaderName**.
+The class representation of my setting JSON is:
 
 ```
 using System;
@@ -451,13 +480,13 @@ namespace Datatable.Dotnet.Setting
 
 ```
 
-And finally I added this line to program.cs
+Obviously, I added this line to program.cs
 ```
 builder.Services.Configure<DatatableSetting>(builder.Configuration.GetSection("DatatableSetting"));
 ```
 ## Tag Helper
 The tag helper code can be found here: [DataTableTagHelper](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/TagHelper/DataTableHelper.cs)
-All I did is to create a custom string and replace it with my custom settings in appsettings.config.
+Surprisingly, The explanation for this part is minimal because all I am doing is creating a string with havascript content for the **Column** List it is getting as an input.(For variable)
 ```
 using Datatable.Dotnet.Setting;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -477,186 +506,53 @@ public class DateTableHelper : TagHelper
     {
         _setting = options.Value;
     }
+
     public IEnumerable<DatatableColumn> For { get; set; }
+
     public string TableId { get; set; }
+
     public string AjaxAddress { get; set; }
+
     public int PageSize { get; set; }
+
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
         output.TagName = "script";
         output.TagMode = TagMode.StartTagAndEndTag;
 
-        var sb = new StringBuilder();
-        var serializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-        var index = 0;
         var stringBuilder = new StringBuilder();
-        foreach (var item in For.Where(c => c.Type == ColumnTypeEnum.Enum))
+
+        stringBuilder.Append(GetJavaScriptDictionariesString(For.Where(c => c.Type == ColumnTypeEnum.Enum)));
+
+        stringBuilder.Append(GetTableVariablesString(TableId));
+
+        stringBuilder.Append(GetHeadersString(For, _setting));
+
+        stringBuilder.Append(GetDatatableBodyString(For, TableId, AjaxAddress));
+
+        stringBuilder.Append(GetFooterString(_setting, PageSize));
+
+        output.PreContent.SetHtmlContent(stringBuilder.ToString());
+    }
+
+    private static string GetJavaScriptDictionariesString(IEnumerable<DatatableColumn> enumColumns)
+    {
+        var stringBuilder = new StringBuilder();
+        foreach (var item in enumColumns)
         {
-            stringBuilder.AppendFormat(@"
-let {0}Map=new Map([{1}]);", char.ToLower(item.Field[0]) + item.Field[1..], string.Join(',', item.EnumDictionary.Select(c => "[" + c.Key + ",'" + c.Value + "']")));
+            stringBuilder.Append(GetEnumDictionaryString(item));
         }
+        return stringBuilder.ToString();
+    }
+
+    private static string GetFooterString(DatatableSetting setting, int pageSize)
+    {
+        var stringBuilder = new StringBuilder();
         stringBuilder.AppendFormat(@"
-let tbl;
-let table = document.getElementById('{0}');
-let tableHeader = document.createElement('thead');
-tableHeader.innerHTML += `", TableId);
-        foreach (var item in For)
-        {
-            switch (item.Type)
-            {
-                case ColumnTypeEnum.String:
-                case ColumnTypeEnum.Date:
-                    var stringHeaderBuilder = new StringBuilder();
-                    var additionalClass = item.Type == ColumnTypeEnum.Date ? "date-picker" : "";
-
-                    stringHeaderBuilder.AppendFormat(@"<th>
-<label>{0}</label>
-", item.HeaderName);
-                    if (item.HasOwnSearch)
-                    {
-                        stringHeaderBuilder.AppendFormat(@"<input class=""column-search {0}""  type=""text"" data-column=""{2}"" placeholder=""{1}"" />
-", additionalClass, string.Format(_setting.Header.OwnSearch,item.HeaderName), index);
-                    }
-                    if (item.Sort)
-                    {
-                        stringHeaderBuilder.AppendFormat(@"<span class=""sort-box""><a class=""asc"" data-column=""{0}"">↑</a><a class=""desc"" data-column=""{0}"">↓</a></span>", index);
-                    }
-                    stringHeaderBuilder.Append("</th>");
-                    stringBuilder.Append(stringHeaderBuilder);
-                    index++;
-                    break;
-                case ColumnTypeEnum.Enum:
-                case ColumnTypeEnum.CheckBox:
-                case ColumnTypeEnum.Custom:
-                    var customHeaderBuilder = new StringBuilder();
-                    customHeaderBuilder.Append(@"
-<th>
-<label></label>
-</th>");
-                    index++;
-                    customHeaderBuilder.AppendFormat(@"<th>
-<label>{0}</label>
-", item.HeaderName);
-                    if (item.HasOwnSearch)
-                    {
-                        if (item.Type == ColumnTypeEnum.Enum)
-                        {
-                            customHeaderBuilder.AppendFormat(@"
-<select data-column=""{0}"">
-<option>{1}</option>
-{2}
-</select>
-", index - 1,_setting.Header.All, String.Join(',', item.EnumDictionary.Select(c => "<option value=\"" + c.Key + "\">" + c.Value + "</option>")));
-                        }
-                        else if (item.Type == ColumnTypeEnum.CheckBox)
-                        {
-                            customHeaderBuilder.AppendFormat(@"
-<select data-column=""{0}"">
-<option value=""null"">{1}</option>
-<option value=""false"">{2}</option>
-<option value=""true"">{3}</option>
-</select>
-", index - 1,_setting.Header.All,_setting.Header.Unchecked,_setting.Header.Checked);
-                        }
-                        else
-                        {
-                            customHeaderBuilder.AppendFormat(@"
-<input class=""column-search""  type=""text"" data-column=""{0}"" placeholder=""{1}"" />
-", index - 1, "جستجو در" + item.HeaderName);
-                        }
-
-                    }
-                    if (item.Sort)
-                    {
-                        customHeaderBuilder.AppendFormat(@"
-<span class=""sort-box"">
-<a class=""asc"" data-column=""{0}"">{1}</a>
-<a class=""desc"" data-column=""{0}"">{2}</a>
-</span>
-", index, _setting.Header.OrderAscHtml, _setting.Header.OrderDescHtml);
-                    }
-                    customHeaderBuilder.Append("</th>");
-                    stringBuilder.Append(customHeaderBuilder);
-                    index++;
-                    break;
-            }
-
-        }
-        stringBuilder.Append(@"</tr>`;
-table.appendChild(tableHeader)
-");
-        index = 0;
-
-        stringBuilder.AppendFormat(@"
-$(function(){{
-		tbl = $('#{0}').DataTable({{
-		proccessing: true,
-		search: true,
-		serverSide: true,
-		ajax: '{1}',
-		columnDefs : [
-", TableId, AjaxAddress);
-        foreach (var item in For)
-        {
-            switch (item.Type)
-            {
-                case ColumnTypeEnum.String:
-                case ColumnTypeEnum.Date:
-                    stringBuilder.AppendFormat(@"
-{{'data':'{0}','targets':{1}}},
-", char.ToLower(item.Field[0]) + item.Field[1..], index);
-                    index++;
-                    break;
-                case ColumnTypeEnum.Enum:
-                    stringBuilder.AppendFormat(@"
-{{'data':'{0}','targets':{1},'visible':false}},
-", char.ToLower(item.Field[0]) + item.Field[1..], index);
-                    index++;
-                    stringBuilder.AppendFormat(@"
-{{'data':'{0}','targets':{1},render:function(data){{
-return {0}Map.get(data)
-		}}
-		}},
-", char.ToLower(item.Field[0]) + item.Field[1..], index);
-                    index++;
-                    break;
-                case ColumnTypeEnum.Custom:
-                    stringBuilder.AppendFormat(@"
-{{'data':null,'targets':{0},'visible':false}},
-", index);
-                    index++;
-                    stringBuilder.AppendFormat(@"
-{{'targets': {0},
-			data: null,
-			render: {1}
-			}},
-", index, item.RenderFunction);
-                    index++;
-                    break;
-                case ColumnTypeEnum.CheckBox:
-                    stringBuilder.AppendFormat(@"
-{{'data':'{0}','targets':{1},'visible':false}},
-", char.ToLower(item.Field[0]) + item.Field[1..], index);
-                    index++;
-                    stringBuilder.AppendFormat(@"
-{{'targets': {0},'data': '{1}', 
-render: function(data, type, row, meta) 
-{{let checked = data ? 'checked=' : '';return `<input ${{checked}} onclick=""{2}(${{row.id}},this)"" type=""checkbox""  />`}}
-}},
-", index, char.ToLower(item.Field[0]) + item.Field[1..], item.ClickFunctionName);
-                    index++;
-                    break;
-            }
-        }
-
-        stringBuilder.AppendFormat(@"
-{{targets: ""_all"",orderable: false}}],
-		pageLength: {0},
-		language: {1}
-}});
+        {{targets: ""_all"",orderable: false}}],
+		        pageLength: {0},
+		        language: {1}
+        }});
 		tbl.columns().every(function() {{
 		let column = this;
 		let header = column.header();
@@ -671,38 +567,267 @@ render: function(data, type, row, meta)
 			tbl.draw();
 		}});
 		$(header).on('change', '.date-picker', function() {{
-console.log('changed');
 			tbl.column($(this).attr('data-column')).search(this.value);
 			tbl.draw();
 		}});
 		$(header).on('change', 'select', function() {{
 			tbl.column($(this).attr('data-column')).search(this.value=='null'?'':this.value);
-tbl.draw();
-		}});
-    }});
-{2}
+            tbl.draw();
+		    }});
+        }});
+    {2}
 	}});
 
-", PageSize == 0 ? _setting.DefaultPageSize : PageSize, JsonConvert.SerializeObject(_setting.Language),_setting.Header.DateColumnPluginCall);
-        output.PreContent.SetHtmlContent(stringBuilder.ToString());
+", pageSize == 0 ? setting.DefaultPageSize : pageSize, JsonConvert.SerializeObject(setting.Language), setting.Header.DateColumnPluginCall);
+        return stringBuilder.ToString();
+
     }
+
+    private static string GetEnumDictionaryString(DatatableColumn item)
+    {
+        var javaSciptMapItems = item.EnumDictionary.Select(c => $"[{ c.Key},'{c.Value}']");
+        return string.Format("let {0}Map=new Map([{1}]);\n", GetNormalizedFieldName(item.Field), string.Join(',', javaSciptMapItems));
+    }
+
+    private static string GetTableVariablesString(string tableId)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("let tbl;\n");
+        stringBuilder.AppendFormat("document.getElementById('{0}')\n", tableId);
+        stringBuilder.Append("let tableHeader = document.createElement('thead');\n");
+        return stringBuilder.ToString();
+    }
+
+    private static string GetHeadersString(IEnumerable<DatatableColumn> columns, DatatableSetting setting)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("tableHeader.innerHTML += `<tr>\n");
+        var index = 0;
+        foreach (var item in columns)
+        {
+            switch (item.Type)
+            {
+                case ColumnTypeEnum.String:
+                case ColumnTypeEnum.Date:
+                    stringBuilder.Append(GetNormalHeaderString(item, index, setting));
+                    index++;
+                    break;
+                case ColumnTypeEnum.Enum:
+                case ColumnTypeEnum.CheckBox:
+                case ColumnTypeEnum.Custom:
+                    stringBuilder.Append(GetCustomHeaderString(item, index, setting));
+                    index++;
+                    break;
+            }
+
+        }
+        stringBuilder.Append("</tr>`;\n");
+        stringBuilder.Append("table.appendChild(tableHeader);\n");
+        return stringBuilder.ToString();
+    }
+
+    private static string GetNormalHeaderString(DatatableColumn column, int index, DatatableSetting setting)
+    {
+        var stringHeaderBuilder = new StringBuilder();
+        var additionalClass = column.Type == ColumnTypeEnum.Date ? "date-picker" : "";
+
+        stringHeaderBuilder.AppendFormat(@"<th>
+                                        <label>{0}</label>
+", column.HeaderName);
+        if (column.HasOwnSearch)
+        {
+            stringHeaderBuilder.AppendFormat(@"<input class=""column-search {0}""  type=""text"" data-column=""{2}"" placeholder=""{1}"" />
+", additionalClass, string.Format(setting.Header.OwnSearch, column.HeaderName), index);
+        }
+        if (column.Sort)
+        {
+            stringHeaderBuilder.AppendFormat(@"<span class=""sort-box""><a class=""asc"" data-column=""{0}"">{1}</a><a class=""desc"" data-column=""{0}"">{2}</a></span>",
+                index,setting.Header.OrderAscHtml,setting.Header.OrderDescHtml);
+        }
+        return stringHeaderBuilder.ToString();
+    }
+
+    private static string GetDatatableBodyString(IEnumerable<DatatableColumn> columns, string tableId, string ajaxAddress)
+    {
+        var stringBuilder = new StringBuilder();
+        var index = 0;
+        stringBuilder.AppendFormat(@"
+$(function(){{
+		tbl = $('#{0}').DataTable({{
+		proccessing: true,
+		search: true,
+		serverSide: true,
+		ajax: '{1}',
+		columnDefs : [
+", tableId, ajaxAddress);
+        foreach (var item in columns)
+        {
+            switch (item.Type)
+            {
+                case ColumnTypeEnum.String:
+                case ColumnTypeEnum.Date:
+                    stringBuilder.Append(GetNormalColumnDef(item.Field, index));
+                    index++;
+                    break;
+                case ColumnTypeEnum.Enum:
+                    stringBuilder.Append(GetHiddenColumnDef(item.Field, index));
+                    index++;
+                    stringBuilder.Append(GetEnumDesciptionColumnDef(item.Field, index));
+                    index++;
+                    break;
+                case ColumnTypeEnum.Custom:
+                    stringBuilder.Append(GetCustomHiddenColumnDef(index));
+                    index++;
+                    stringBuilder.Append(GetCustomColumnDef(item.RenderFunction, index));
+                    index++;
+                    break;
+                case ColumnTypeEnum.CheckBox:
+                    stringBuilder.Append(GetHiddenColumnDef(item.Field, index));
+                    index++;
+                    stringBuilder.Append(GetCheckboxDef(item.Field, index, item.ClickFunctionName));
+
+                    index++;
+                    break;
+            }
+        }
+        return stringBuilder.ToString();
+    }
+
+    private static string GetCustomHeaderString(DatatableColumn column, int index, DatatableSetting setting)
+    {
+        var customHeaderBuilder = new StringBuilder();
+        customHeaderBuilder.Append(@"
+<th>
+<label></label>
+</th>");
+        index++;
+        customHeaderBuilder.AppendFormat(@"<th>
+<label>{0}</label>
+", column.HeaderName);
+        if (column.HasOwnSearch)
+        {
+            if (column.Type == ColumnTypeEnum.Enum)
+            {
+                customHeaderBuilder.AppendFormat(@"
+<select data-column=""{0}"">
+<option>{1}</option>
+{2}
+</select>
+", index - 1, setting.Header.All, String.Join(',', column.EnumDictionary.Select(c => "<option value=\"" + c.Key + "\">" + c.Value + "</option>")));
+            }
+            else if (column.Type == ColumnTypeEnum.CheckBox)
+            {
+                customHeaderBuilder.AppendFormat(@"
+<select data-column=""{0}"">
+<option value=""null"">{1}</option>
+<option value=""false"">{2}</option>
+<option value=""true"">{3}</option>
+</select>
+", index - 1, setting.Header.All, setting.Header.Unchecked, setting.Header.Checked);
+            }
+            else
+            {
+                customHeaderBuilder.AppendFormat(@"
+<input class=""column-search""  type=""text"" data-column=""{0}"" placeholder=""{1}"" />
+", index - 1, "Search In " + column.HeaderName);
+            }
+
+        }
+        if (column.Sort)
+        {
+            customHeaderBuilder.AppendFormat(@"
+<span class=""sort-box"">
+<a class=""asc"" data-column=""{0}"">{1}</a>
+<a class=""desc"" data-column=""{0}"">{2}</a>
+</span>
+", index, setting.Header.OrderAscHtml, setting.Header.OrderDescHtml);
+        }
+        customHeaderBuilder.Append("</th>");
+        return customHeaderBuilder.ToString();
+    }
+
+    private static string GetNormalColumnDef(string field, int index)
+    {
+        return string.Format(@"
+                            {{'data':'{0}','targets':{1}}},
+", GetNormalizedFieldName(field), index);
+    }
+
+    private static string GetEnumDesciptionColumnDef(string field, int index)
+    {
+
+        return string.Format(@"
+                            {{'data':'{0}','targets':{1},
+                            render:function(data)
+                                {{
+                                    return {0}Map.get(data)
+		                        }}
+		                    }},
+", GetNormalizedFieldName(field), index);
+    }
+
+    private static string GetCheckboxDef(string field, int index, string checkBoxClickFunction)
+    {
+        return string.Format(@"
+                            {{'targets': {0},'data': '{1}', 
+                            render: function(data, type, row, meta) 
+                            {{let checked = data ? 'checked=' : '';return `<input ${{checked}} onclick=""{2}(${{row.id}},this)"" type=""checkbox""  />`}}
+                            }},
+", index, GetNormalizedFieldName(field), checkBoxClickFunction);
+    }
+
+    private static string GetHiddenColumnDef(string field, int index)
+    {
+        return string.Format(@"
+                            {{'data':'{0}','targets':{1},'visible':false}},
+", GetNormalizedFieldName(field), index);
+    }
+
+    private static string GetCustomHiddenColumnDef(int index)
+    {
+        return string.Format(@"
+                            {{'data':null,'targets':{0},'visible':false}},
+", index);
+    }
+
+    private static string GetCustomColumnDef(string function, int index)
+    {
+        return string.Format(@"
+                            {{'targets': {0},
+			                            data: null,
+			                            render: {1}
+			                            }},
+", index, function);
+    }
+
+    private static string GetNormalizedFieldName(string field)
+    {
+        return char.ToLower(field[0]) + field[1..];
+    }
+
+
 }
+
 ```
+As you can see there are 4 parameters for this tag helper
+|Parameter| Required  | Explanation
+|--|--|--|
+|TableId  | true | The Html Table Id for assigning to datatable js and creating our customized table|
+|PageSize|false| The page size it will be use to show data to users. If not provided the taghelper will use DefaultPageSize from the setting|
+|AjaxAddress| true| The Address for the method that will get our **DatatableInput** and returns **DataTableResult** (this class will be covered in Ajax call part)|
+|For|true|List of columns created by our **DatatableColumnBuilder**|
+
+
 And finally, I referenced the tag helper inside my ViewImport.cshtml file like this:
 ```
 @addTagHelper "*, Datatable.Dotnet"
 ```
-Please note that this is the assembly name(Project name), not the namespace.
-The parameters I used for this tag helper is:
-```
-    public string TableId { get; set; }
-    public string AjaxAddress { get; set; }
-    public int PageSize { get; set; }
-```
-TableId for an empty html table element. other fields are obvious.
+Please note that this is the **assembly name(Project name)**, not the namespace.
 
-## Ajax call
-For the ajax part, I first created a simple generic class for returning to datatable.js as a response.
+## Server-Side Pagination, Sorting and Searching.
+For the ajax part, I first created a simple generic class for returning paged data. It is a generic class and can be found Here: [DataTableResult](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/DataTableResult.cs). 
+
+
 
 ```
 public class DataTableResult<T>
@@ -717,8 +842,13 @@ public class DataTableResult<T>
     public int RecordsFiltered { get; set; }
 }
 ```
-and at the end I created a PageHandler inside my product Razor Page. Here is an gist of it:
+**Note**: All the server side methods for pagination should return a JsonResult of type DataTableResult. For example in our ProductViewModel case, we should return a **JsonResult** of **DatatableResult** of **ProductViewModel**.
+
+With all these classes implemented, Remaining is a simple Ajax Method. as I mentioned the input should always be DatatableInput and the response should be JsonResult of DatatableResult. So Here it is.
+
 ```
+      public async Task<JsonResult> GetPagedProducts(DataTableInput datatableRequest)
+    {
         //Create your query as you want. do not ToList() or AsEnumarable Here yet!
         var records = _db.Products
             .Include(c => c.ProductTags)
@@ -758,25 +888,35 @@ and at the end I created a PageHandler inside my product Razor Page. Here is an 
         return result;
     }
 ```
-Note that the _queryHelper is using dynamic linq in my case. you can implement with any other library you want.
+**Note:** : the my _queryHelper service is using [Dynamic LINQ for .Net Core](https://www.nuget.org/packages/System.Linq.Dynamic.Core/) . you can implement with any other library you want or write your own filter and sort. But for easier implementation it is **highly** recommended to use this library. You are going to love it. I promise!
 
-### Html Part
+**Note**: As you can see I only took < PageSize > Records from the Database, Not the whole list. All my service methods for global searching, column searching and ordering are returning just a filtered DbSet not a List. only on ApplyPaginationAsync() at the end, I am getting the records from database.
+
+## Fun Part: Using the codes and seeing the result
+OK, Here we go. Lets use the plugin
+#### Empty HTML Table Tag
 ```
-        <table id="example" class="display">
+
+        <table id="products" class="display">
         </table>
 ```
-### Tag Helper Part
+#### Tag Helper Part
+This will create a script. So it is recommended to put it in Script section and **below the Datatable.js script and stylesheets.**
 ```
-<datatable-helper for="@Model.Input" ajax-address="./Index?handler=PagedRecords" page-size="25" table-id="example"></datatable-helper>
-
+<datatable-helper for="@Model.Input" ajax-address="/Products/GetPagedProducts" page-size="25" table-id="products"></datatable-helper>
+```
+#### (Optional) Custom Renderers
+because I used some custom columns in my example, I added two functions. One for rendering the button group at the end. One for when user clicks on my **Visible**  checkbox.
+```
 <script>
     function renderButtons(data, type, row, meta){
        return  `<div class="btn-group btn-group-sm" role="group" aria-label="Basic example"">
-             <button class="btn btn-danger btn-sm">حذف</button>
-      <button class="btn btn-secondary btn-sm">یه چی دیگه</button>
-            <button  class="btn btn-primary btn-sm" onclick="console.log(${row.id})">ویرایش</button>
+             <button class="btn btn-danger btn-sm">Delete</button>
+      <button class="btn btn-secondary btn-sm">Another</button>
+            <button  class="btn btn-primary btn-sm" onclick="console.log(${row.id})">Edit</button>
     </div>`
     }
+    //For checkbox clicking
     function onVisibleClick(row,sender){
         console.log(sender);
         console.log('visibled clicked:'+ row);
@@ -784,10 +924,11 @@ Note that the _queryHelper is using dynamic linq in my case. you can implement w
 </script>
 ```
 
-Based on your response type and your ColumnBuilder Input you should see something like this:
+And when I ran the project, I saw what I needed to see:
+
 ![Final view](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet.PNG)
 
- The javascript part is as minimal as possible. Happy coding/ copying/ changing/ complaining/ whatever.
+As you can see, Absolute minimum javascript code even with a lot of custom buttons, different types, enums, etc. and with built-in support of Server side pagination, sort and searching. My journey is over. Any suggestions and pull request in this library is appreciated. as well as hitting the **STAR** button on this repo! you can also fork it, change it, copy it and customize it on your own. Happy coding ;)
 
 
 
