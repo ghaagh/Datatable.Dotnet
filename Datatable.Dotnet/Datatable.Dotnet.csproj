@@ -1,5 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
 
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -8,7 +14,7 @@
     <AssemblyVersion>0.9.01.00</AssemblyVersion>
     <FileVersion></FileVersion>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <Version>0.9.02.005-beta</Version>
+    <Version>0.9.02.010</Version>
     <Authors>Iman.Esmaili</Authors>
     <Description>An unofficial simple and reusable implementation of datatable for .net with tag helper and a sound customization capabilities and build in ajax pagination support</Description>
     <PackageProjectUrl>https://github.com/ghaagh/Datatable.Dotnet</PackageProjectUrl>
@@ -17,8 +23,10 @@
 
   <ItemGroup>
     <None Include="readme.md" Pack="true" PackagePath="\" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
 </Project>
