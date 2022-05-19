@@ -14,7 +14,7 @@
     <AssemblyVersion>0.9.01.00</AssemblyVersion>
     <FileVersion></FileVersion>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <Version>0.9.02.011</Version>
+    <Version>1.0.0.1</Version>
     <Authors>Iman.Esmaili</Authors>
     <Description>This Package is an unofficial easy to use implementation of DataTable.js with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort. 
 </Description>

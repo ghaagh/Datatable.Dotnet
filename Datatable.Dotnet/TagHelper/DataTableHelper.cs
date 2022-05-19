@@ -103,7 +103,7 @@ public class DateTableHelper : TagHelper
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.Append("let tbl;\n");
-        stringBuilder.AppendFormat("document.getElementById('{0}')\n", tableId);
+        stringBuilder.AppendFormat("let table = document.getElementById('{0}')\n", tableId);
         stringBuilder.Append("let tableHeader = document.createElement('thead');\n");
         return stringBuilder.ToString();
     }
