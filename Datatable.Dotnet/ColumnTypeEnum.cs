@@ -3,6 +3,7 @@
 public enum ColumnTypeEnum
 {
     String,
+    Number,
     CheckBox,
     Date,
     Enum,

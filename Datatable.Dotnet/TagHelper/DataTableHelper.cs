@@ -119,6 +119,7 @@ public class DateTableHelper : TagHelper
             {
                 case ColumnTypeEnum.String:
                 case ColumnTypeEnum.Date:
+                case ColumnTypeEnum.Number:
                     stringBuilder.Append(GetNormalHeaderString(item, index, setting));
                     index++;
                     break;
@@ -177,6 +178,10 @@ $(function(){{
                 case ColumnTypeEnum.String:
                 case ColumnTypeEnum.Date:
                     stringBuilder.Append(GetNormalColumnDef(item.Field, index));
+                    index++;
+                    break;
+                case ColumnTypeEnum.Number:
+                    stringBuilder.Append(GetNumberColumnDef(item.Field, item.Format, index));
                     index++;
                     break;
                 case ColumnTypeEnum.Enum:
@@ -261,6 +266,12 @@ $(function(){{
         return string.Format(@"
                             {{'data':'{0}','targets':{1}}},
 ", GetNormalizedFieldName(field), index);
+    }
+    private static string GetNumberColumnDef(string field,NumberFormat format, int index)
+    {
+        return string.Format(@"
+                            {{'data':'{0}','targets':{1}, render: $.fn.dataTable.render.number('{2}', '{3}', {4}, '') }},
+", GetNormalizedFieldName(field), index,format.ThousandSeparator,format.DecimalPoint,format.MaxDecimal);
     }
 
     private static string GetEnumDesciptionColumnDef(string field, int index)

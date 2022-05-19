@@ -27,6 +27,14 @@ namespace Datatable.Dotnet
             Columns.Add(column);
             return this;
         }
+        public DatatableColumnBuilder AddNumberColumn(string headerName, string field, NumberFormat format, bool includeInGlobalSearch = true, bool hasOwnSearch = true, bool sort = true)
+        {
+            var column = GeneralColumn(headerName, field, includeInGlobalSearch, hasOwnSearch, sort);
+            column.Type = ColumnTypeEnum.Number;
+            column.Format = format;
+            Columns.Add(column);
+            return this;
+        }
         public DatatableColumnBuilder AddEnumColumn(string headerName, string field, Dictionary<int, string> dictionary, bool includeInGlobalSearch = true, bool hasOwnSearch = true, bool sort = true)
         {
             var column = GeneralColumn(headerName, field, includeInGlobalSearch, hasOwnSearch, sort);

@@ -7,6 +7,7 @@
             EnumDictionary = new Dictionary<int, string>();
         }
         public string Field { get; set; }
+        public NumberFormat Format { get; set; }
         public bool Sort { get; set; } = true;
         public string? ClickFunctionName { get; set; }
         public ColumnTypeEnum Type { get; set; } = ColumnTypeEnum.String;
