@@ -1,20 +1,25 @@
 
-# DataTable.Dotnet
 
-This Package is an **unofficial** easy to use implementation of [DataTable.js](https://datatables.net/) with built-in support for .net core server side pagination, ordering and searching.
+# DataTable Js .Net Core Implementation With Server-Side Processing
 
-**Note:** If you need any more customization please visit the [Github Page For DataTable.Dotnet](https://github.com/ghaagh/Datatable.Dotnet) and use the source to add more features of your own.
+This Package is an **unofficial** easy to use, .Net Core implementation of [DataTable.js](https://datatables.net/) with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort.
 
-## How to Configure
+**Note:** If you need any help on bootstrapping the package, contract me. I'll be happy to help.
+**Note:** If you need any more customization please visit the [Github Page For DataTable.Dotnet](https://github.com/ghaagh/Datatable.Dotnet). Any feature and bug-fix pull request is appreciated.
+
+## Configuration
 1.  Add neessary Javascript and Style libraries from the [official website](https://datatables.net/) to your web page/ View  or _Layout.cshtml.
-2. Depending on what type of .Net project you are using, Add this lines  of code to the end of **.AddMvcControllersWithView()** Or **AddRazorPages()**
+
+2. Depending on what type of .Net project you are using, Add these lines  of code to the end of **.AddMvcControllersWithView()** Or **AddRazorPages()**
+
+For MVC projects:
 ```
 builder.Services.AddRazorPages().AddMvcOptions(options => {
         options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
 });
 ```
 
-
+For Razor Page Projects:
 ``` 
 builder.Services.AddControllersWithViews().AddMvcOptions(options => {
     options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
@@ -85,8 +90,8 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
 ```
 **Note:**  "Datatable.Dotnet" is the assembly name, not the namespace.
 
-## How to use
-1. The input for TagHelper is an IEnumarable of **Column**. In order to create that, you can use **DatatableColumnBuilder** class.  For example for a complex ViewModel like this:
+## Building The Datatable Columns In Controller
+The input for TagHelper is an IEnumarable of **Column**. In order to create that, you can use **DatatableColumnBuilder** class.  Suppose we have a complex ViewModel like this:
 ```
     public class ProductViewModel
     {
@@ -101,11 +106,11 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
     public enum ProductTypeEnum
 {
     Book = 1,
-    Tools,
+    WritingTools,
     Other
 }
 ```
-You can use the DatatableColumnBuilder like this:
+In your **Get() View Method** or **OnGet() page handler**, you can use the DatatableColumnBuilder like this to create a model:
 ```
 
 IEnumarable<Columns> input = new DatatableColumnBuilder()
@@ -136,20 +141,28 @@ IEnumarable<Columns> input = new DatatableColumnBuilder()
 |**HeaderName**| the string that will be shown in generated Datatable header for the column.|
 |**RenderFunction**|specific to the **Custom** column types. It can be a whole javascript function or just its name.|
 |**Disabled**|Specific for **checkbox** column types.|
-|**EnumDictionary**|Specific to **Enum** Column types to show a user-friendly enum text instead of just number or joint strings.|
+|**EnumDictionary**|Specific to **Enum** Column types to show a user-friendly enum text instead of numbers or joint strings.|
 
 
 **Note**: Remember that this part is not connecting to any database, and It is just creating the columns definitions for passing to tag helper.
 
 **Note**: you may not need any custom column or checkbox column. It is just here to show your options on creating the list of columns.
 
- 2. Add Your Pager Ajax Method to a controller or a page. As long as the input and the output remains the same it does not matter. Here is a simple example of the ajax Method.
+ ## Ajax Method
+  Datatable.Dotnet will call the ajax method that is provided to it. Here is the things you should keep in mind.
+  
+|Requirement|Description|
+|--|--|
+|**Http Method**| The request is always a **GET** |
+|**Input**|The type of the input is always **DataTableInput**. The name of the input does not matter|
+|**Return Type** | Return type is a **JsonResult** of the type  **DataTableResult**. For example if you want to create datatable to show a list of ProductViewModel, you must return new **JsonResult** of **DataTableResult\<ProductViewModel\>** in your ajax method. |
+
+  
 
 **Notes:**
- - The input type is always **DataTableInput**. 
- - The output type is always a **JsonResult** of the class **DataTableResult**  of your ViewModel (in our example ProductViewModel).
  - For Adding dynamic filter and order to my query, [Dynamic Linq](https://www.nuget.org/packages/System.Linq.Dynamic.Core/) is a good option.
  - After applying sort and search we are calling ApplyPaginationAsync() which is connecting to database. Use this pattern for minimizing the amount of data returned from the database.
+### An Ajax Method Example:
 ```
 public async Task<JsonResult> GetPagedRecords(DataTableInput datatableRequest)
     {
@@ -191,28 +204,33 @@ public async Task<JsonResult> GetPagedRecords(DataTableInput datatableRequest)
         return result;
     }
 ```
-3. Add a normal empty table with an ID to your page like this:
+
+## Viewing The Results In Page
+
+ 1. Add a normal empty table with an ID to your page like this:
 ```
 <table id="products" class="display">
         </table>
 ```
 
- 4. add this line to your script section. Please note that this tag helper is adding a script to your page. So load it after Datatable script and stylesheet (Generally in **Script** section of your page but you do you!)
+ 2. use this line to initialize. Please note that this tag helper will be converted to a script. So load it after Datatable script and stylesheet (Generally in **Script** section of your page)
 
 ```
 section Script{
-<!--Datatable script here-->
+<!--Datatable.js official scripts here-->
 <datatable-helper for="@Model.Input" ajax-address="/Products/GetPagedRecords" page-size="25" table-id="products"></datatable-helper>
 <!--Your custom Column render functions here-->
 }
 ```
 
-4. In some cases , When you used custom column or checkbox function colums. In these cases, remember to add their javascript function to your page. for the **Column Definition** I used above. Here is the remaining code for creating custom buttons and adding a function to checkbox. In one view, the core is 
+3. If you Added custom columns, Add those definitions at the bottom of the tag-helper.
 
 ```
 section Script{
-<!--Datatable script here-->
+<!--Datatable.js official scripts here-->
+
 <datatable-helper for="@Model.Input" ajax-address="/Products/GetPagedRecords" page-size="25" table-id="example"></datatable-helper>
+
 <!--Your custom Column render functions here-->
 <script>
     function renderButtons(data, type, row, meta){
@@ -221,6 +239,7 @@ section Script{
             <button  class="btn btn-primary btn-sm" onclick="console.log(${row.id})">Edit</button>
     </div>`
     }
+    
     function onVisibleClick(row,sender){
         console.log(sender);
         console.log('visibled clicked:'+ row);
@@ -228,7 +247,4 @@ section Script{
 </script>
 }
 ```
-**Now after runing your project, you should see a thing like this:
-![Final view](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet.PNG)
-
-If you need any more customization please visit the [Github Page For DataTable.Dotnet](https://github.com/ghaagh/Datatable.Dotnet) and use the source to add more features of your own.
+Run the project and See the result. Start customizing the table and buttons.

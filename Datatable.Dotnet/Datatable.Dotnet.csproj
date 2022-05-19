@@ -14,11 +14,15 @@
     <AssemblyVersion>0.9.01.00</AssemblyVersion>
     <FileVersion></FileVersion>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <Version>0.9.02.010</Version>
+    <Version>0.9.02.011</Version>
     <Authors>Iman.Esmaili</Authors>
-    <Description>An unofficial simple and reusable implementation of datatable for .net with tag helper and a sound customization capabilities and build in ajax pagination support</Description>
+    <Description>This Package is an unofficial easy to use implementation of DataTable.js with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort. 
+</Description>
     <PackageProjectUrl>https://github.com/ghaagh/Datatable.Dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/ghaagh/Datatable.Dotnet</RepositoryUrl>
+    <PackageTags>Datatable.js;.NET Core;Ajax;Server-Side;Pagination;Search;Sort;Tag-Helper</PackageTags>
+    <PackageReleaseNotes>Minimized the dependency for the plugin,Added </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
