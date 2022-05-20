@@ -127,7 +127,7 @@ public class DateTableHelper : TagHelper
                 case ColumnTypeEnum.CheckBox:
                 case ColumnTypeEnum.Custom:
                     stringBuilder.Append(GetCustomHeaderString(item, index, setting));
-                    index++;
+                    index+=2;
                     break;
             }
 

@@ -18,9 +18,13 @@ namespace Datatable.Dotnet
         public char ThousandSeparator { get; set; }
         public char DecimalPoint { get; set; }
         public int MaxDecimal { get; set; }
-        public static NumberFormat Default()
+        public static NumberFormat DefaultInt()
         {
-            return new NumberFormat(',','.',2); 
+            return new NumberFormat(',','.',0); 
+        }
+        public static NumberFormat DefaultDecimal()
+        {
+            return new NumberFormat(',', '.', 2);
         }
     }
 }
