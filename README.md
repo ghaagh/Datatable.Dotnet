@@ -1,17 +1,28 @@
 
 
 
-# DataTable Js .Net Core Implementation With Server-Side Processing and Strongly Typed syntax.
+# DataTable Js .Net Core Implementation With Server-Side Processing
 
+This Package is an **unofficial** easy to use, .Net Core implementation of [DataTable.js](https://datatables.net/) with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort.
+
+---
+## Problem
+I had a mission to create a .net core project for bootstrapping my friend's future projects. For his previous projects, he used .Net Framework with 
+Telerik for the tables. Telerik is a well-thought library and it is easy to use. It is hard to convince someone to stop using that and write javascript! 
+So the solution was to develop a tag helper with the absolute minimum of javascript writing. 
 
 ## Instalation: 
 Instal via:
-Package Manager : **Install-Package Datatable.Dotnet**
-CLI : **dotnet add package Datatable.Dotnet**
-This Package is an **unofficial** easy to use, .Net Core implementation of [DataTable.js](https://datatables.net/) with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort.
+#### Package Manager : 
+```
+Install-Package Datatable.Dotnet
+```
 
-**Note:** If you need any help on bootstrapping the package, contract me. I'll be happy to help.
-**Note:** If you need any more customization please visit the [Github Page For DataTable.Dotnet](https://github.com/ghaagh/Datatable.Dotnet). Any feature and bug-fix pull request is appreciated.
+#### CLI : 
+```
+dotnet add package Datatable.Dotnet
+```
+
 
 ## Configuration
 1.  Add neessary Javascript and Style libraries from the [official website](https://datatables.net/) to your web page/ View  or _Layout.cshtml.
@@ -25,14 +36,32 @@ builder.Services.AddRazorPages().AddMvcOptions(options => {
 });
 ```
 
-For Razor Page Projects:
-``` 
-builder.Services.AddControllersWithViews().AddMvcOptions(options => {
-    options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
-});
-```
+## Generating Column List
+Now that the request part of the code is over, I moved to the real part. Generating the script with C#. First, 
 
-3. Add some setting to your appsettings.json file. 
+1. I added a [ColumnTypeEnum](https://github.com/ghaagh/Datatable.Dotnet/blob/master/Datatable.Dotnet/ColumnTypeEnum.cs)  to contain all different types of columns possible
+```
+namespace Datatable.Dotnet;
+
+public enum ColumnTypeEnum
+{
+    String,
+    CheckBox,
+    Date,
+    Enum,
+    Custom
+}
+```
+|ColumnTypeEnum value|Desired Behaviour|
+-|-
+|**String**|  The main column type which represents every normal 'JUST-SHOW-IT' field from the server| Just
+|**Date**|  Just like Strings with support for Javascript datepicker plugins. The header can support selecting dates with javascript libraries|
+|**Checkbox**| Dedicated to show the value in checkbox format. It will have the support of calling javascript function when user clicks on the checkbox|
+|**Enum**| Showing enum Data properly with user friendly Description for every type
+|**Custom**| Completely open-ended with support of showing any type of column with simple javascript function|
+
+2. Now it is the time for defining the Columns
+Here is the Column class that contains information about how the table columns will be generated.
 
  
 ```
