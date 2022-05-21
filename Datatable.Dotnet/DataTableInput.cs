@@ -28,9 +28,4 @@ public class Order
     public string Column { get; set; }
     public string Dir { get; set; }
 }
-public class Search
-{
-    [JsonPropertyName("value")]
-    public string Value { get; set; }
-}
 
