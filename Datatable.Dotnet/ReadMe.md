@@ -1,6 +1,7 @@
 
 
-# DataTable Js .Net Core Implementation With Server-Side Processing
+
+# DataTable Js .Net Core Implementation With Server-Side Processing and Strongly Typed syntax.
 
 This Package is an **unofficial** easy to use, .Net Core implementation of [DataTable.js](https://datatables.net/) with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort.
 
@@ -79,30 +80,28 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
 |**DateColumnPluginCall**| This line will be the place for calling your desired **DatePicker** plugin. If you don't want that. Empty the string|
 |**Checked** and **Unchecked**| Specific to **Checkbox** column type and for creating search Filter with dropdown. Note that the Filter will also contain "Header.All" |
 
-4. In your Program.cs, add DatatableSetting to dependency injection like this:
+4. In your Program.cs, add AddDatatable() to dependency injection like this:
 ```
-    builder.Services.Configure<DatatableSetting>(builder
-    .Configuration.GetSection("DatatableSetting"));
-```
-5. And Finally Add the TagHelper to your _ViewImport.cshtml with the line below. 
-```
-    @addTagHelper "*, Datatable.Dotnet"
-```
-**Note:**  "Datatable.Dotnet" is the assembly name, not the namespace.
+ 
+builder.Services.AddDatatable(builder.Configuration.GetSection("DatatableSetting"));
 
-## Building The Datatable Columns In Controller
-The input for TagHelper is an IEnumarable of **Column**. In order to create that, you can use **DatatableColumnBuilder** class.  Suppose we have a complex ViewModel like this:
 ```
-    public class ProductViewModel
-    {
+
+## Building the Script
+You can use the injected IDatatableBuilder< Your-View-Model> in your controller. For example for a viewModel like this:
+```
+        [Display(Name="Id")]
         public int Id { get; set; }
+        [Display(Name="Product Type")]
         public ProductTypeEnum ProductType { get; set; }
+        [Display(Name="Product Name")]
         public string Name { get; set; }
+        [Display(Name="Date")]
         public DateTime Date { get; set; }
         public string Desciption { get; set; }
         public bool Visible { get; set; }
+        [Display(Name="Product Tags")]
         public virtual IEnumerable<string> ProductTags { get; set; }
-    }
     public enum ProductTypeEnum
 {
     Book = 1,
@@ -110,45 +109,36 @@ The input for TagHelper is an IEnumarable of **Column**. In order to create that
     Other
 }
 ```
-In your **Get() View Method** or **OnGet() page handler**, you can use the DatatableColumnBuilder like this to create a model:
+You can inject the IDatatableBuilder like this:
 ```
+    private readonly IDatatableBuilder<ProductViewModel> _tableBuilder;
+    public ProductController(IDatatableBuilder<ProductViewModel> tableBuilder)
+    {
+        _tableBuilder = tableBuilder;
+    }
+```
+ Now, user the injected service to create a datatable script
 
-IEnumarable<Columns> input = new DatatableColumnBuilder()
-            .AddTextColumn("Identification", nameof(ProductViewModel.Id))
-            .AddTextColumn("ProductName", nameof(ProductViewModel.Name))
-            .AddTextColumn("Description", nameof(ProductViewModel.Desciption))
-            .AddTextColumn("Tags", nameof(ProductViewModel.ProductTags), true, false, false)
-            .AddEnumColumn("Type", nameof(ProductViewModel.ProductType),
-            new Dictionary<int, string>
+### Example
+```
+        var productTypeEnumDictionary = new Dictionary<int, string>
             {
                 {(int)ProductTypeEnum.Book,"Books" },
-                {(int)ProductTypeEnum.WritingTools,"Writing Tools" },
-                {(int) ProductTypeEnum.Other,"Other Tools" }
-            })
-            .AddDateTimeColumn("Date", nameof(ProductViewModel.Date))
-            .AddCheckBoxColumn("Visible in Website", nameof(ProductViewModel.Visible), false, "onVisibleClick")
-            .AddCustomColumn("Operations", null, "renderButtons", false, false, false)
-            .Build();
+                {(int)ProductTypeEnum.Tools,"Writing tools" },
+                {(int) ProductTypeEnum.Other,"Other tools" }
+            };
+        ViewData["exampleScript"] = _tableBuilder
+            .AddColumn(column => column.ForMember(c => c.Id).WithDefaultHeader().AsInt().WithDefaultFormat())
+            .AddColumn(column => column.ForMember(c => c.Name).WithDefaultHeader().AsString())
+            .AddColumn(column => column.ForMember(c => c.Desciption).WithDefaultHeader().AsString())
+            .AddColumn(column => column.ForMember(c => c.ProductTags).WithDefaultHeader().AsString())
+            .AddColumn(column => column.ForMember(c => c.ProductType).WithDefaultHeader().AsEnum().WithDictionary(productTypeEnumDictionary))
+            .AddColumn(column => column.ForMember(c => c.Date).WithDefaultHeader().AsDate())
+            .AddColumn(column => column.ForMember(c => c.Visible).WithDefaultHeader().AsCheckbox().WithClickFunction("onVisibleClick"))
+            .AddColumn(column => column.ForNone().WithHeader(String.Empty).AsCustom().WithRender("renderButtons"))
+            .BuildAjaxTable("example", "./Index?handler=PagedRecords",25);
 ```
-### Column Properties
-
-|Property| Explanation  |
-|--|--|
-|**Field**  |the name of the field. for example, if I am getting a list of products from the server, 'ProductName' is the field. this is the field name not its value.  |
-|**Sort**|Specifies wether the column has sort buttons or not.|
-|**HasOwnSearch**| Specifies whether the column has its own search in the header or not.|
-|**ClickFunctionName**|specific to Checkbox type. It can carry a javascript function to be called after a click on the checkbox. for example it can be useful for instant enabling and disabling records.|
-|**HeaderName**| the string that will be shown in generated Datatable header for the column.|
-|**RenderFunction**|specific to the **Custom** column types. It can be a whole javascript function or just its name.|
-|**Disabled**|Specific for **checkbox** column types.|
-|**EnumDictionary**|Specific to **Enum** Column types to show a user-friendly enum text instead of numbers or joint strings.|
-
-
-**Note**: Remember that this part is not connecting to any database, and It is just creating the columns definitions for passing to tag helper.
-
-**Note**: you may not need any custom column or checkbox column. It is just here to show your options on creating the list of columns.
-
- ## Ajax Method
+## Ajax Method
   Datatable.Dotnet will call the ajax method that is provided to it. Here is the things you should keep in mind.
   
 |Requirement|Description|
@@ -162,7 +152,7 @@ IEnumarable<Columns> input = new DatatableColumnBuilder()
 **Notes:**
  - For Adding dynamic filter and order to my query, [Dynamic Linq](https://www.nuget.org/packages/System.Linq.Dynamic.Core/) is a good option.
  - After applying sort and search we are calling ApplyPaginationAsync() which is connecting to database. Use this pattern for minimizing the amount of data returned from the database.
-### An Ajax Method Example:
+### Example:
 ```
 public async Task<JsonResult> GetPagedRecords(DataTableInput datatableRequest)
     {
@@ -204,47 +194,34 @@ public async Task<JsonResult> GetPagedRecords(DataTableInput datatableRequest)
         return result;
     }
 ```
-
-## Viewing The Results In Page
-
- 1. Add a normal empty table with an ID to your page like this:
+## Loading the table on Page/View
+### Simple call
 ```
-<table id="products" class="display">
-        </table>
+<table id="example" class="display">
+</table>
+<script>
+	@Html.Raw(ViewData["exampleScript"])
+</script>
 ```
-
- 2. use this line to initialize. Please note that this tag helper will be converted to a script. So load it after Datatable script and stylesheet (Generally in **Script** section of your page)
-
+If you have custom rendering, or checkbox with click function, it would be like:
 ```
-section Script{
-<!--Datatable.js official scripts here-->
-<datatable-helper for="@Model.Input" ajax-address="/Products/GetPagedRecords" page-size="25" table-id="products"></datatable-helper>
-<!--Your custom Column render functions here-->
-}
-```
-
-3. If you Added custom columns, Add those definitions at the bottom of the tag-helper.
-
-```
-section Script{
-<!--Datatable.js official scripts here-->
-
-<datatable-helper for="@Model.Input" ajax-address="/Products/GetPagedRecords" page-size="25" table-id="example"></datatable-helper>
-
-<!--Your custom Column render functions here-->
+<table id="example" class="display">
+</table>
+<script>
+	@Html.Raw(ViewData["exampleScript"])
+</script>
 <script>
     function renderButtons(data, type, row, meta){
        return  `<div class="btn-group btn-group-sm" role="group" aria-label="Basic example"">
              <button class="btn btn-danger btn-sm">Delete</button>
+      <button class="btn btn-secondary btn-sm">Something else</button>
             <button  class="btn btn-primary btn-sm" onclick="console.log(${row.id})">Edit</button>
     </div>`
     }
-    
     function onVisibleClick(row,sender){
         console.log(sender);
         console.log('visibled clicked:'+ row);
     }
 </script>
-}
 ```
-Run the project and See the result. Start customizing the table and buttons.
+ Now, run the project and see the result.

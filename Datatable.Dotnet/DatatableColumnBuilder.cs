@@ -1,7 +1,14 @@
 ﻿
+using Datatable.Dotnet.Format;
+using System;
+
 namespace Datatable.Dotnet
 {
+    /// <summary>
+    /// This method is aboslete. Please use ITableBuilder<T> to build your script with fluent api.
+    /// </summary>
 
+    [Obsolete(message:"Please use IDatatable<Your-View-Model> via Dependency Injection.")]
     public class DatatableColumnBuilder
     {
         public DatatableColumnBuilder()

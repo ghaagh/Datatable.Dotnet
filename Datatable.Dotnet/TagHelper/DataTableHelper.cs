@@ -1,8 +1,8 @@
-﻿using Datatable.Dotnet.Setting;
+﻿using Datatable.Dotnet.Format;
+using Datatable.Dotnet.Setting;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.Text;
 
 namespace Datatable.Dotnet.TagHelpers;

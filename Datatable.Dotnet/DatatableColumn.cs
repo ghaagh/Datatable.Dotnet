@@ -1,4 +1,6 @@
-﻿namespace Datatable.Dotnet
+﻿using Datatable.Dotnet.Format;
+
+namespace Datatable.Dotnet
 {
     public class DatatableColumn
     {
