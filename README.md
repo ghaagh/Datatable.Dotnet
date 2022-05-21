@@ -155,22 +155,16 @@ You can inject the IDatatableBuilder like this:
 
 ### Example
 ```
-        var productTypeEnumDictionary = new Dictionary<int, string>
-            {
-                {(int)ProductTypeEnum.Book,"Books" },
-                {(int)ProductTypeEnum.Tools,"Writing tools" },
-                {(int) ProductTypeEnum.Other,"Other tools" }
-            };
         ViewData["exampleScript"] = _tableBuilder
             .AddColumn(column => column.ForMember(c => c.Id).WithDefaultHeader().AsInt().WithDefaultFormat())
             .AddColumn(column => column.ForMember(c => c.Name).WithDefaultHeader().AsString())
             .AddColumn(column => column.ForMember(c => c.Desciption).WithDefaultHeader().AsString())
-            .AddColumn(column => column.ForMember(c => c.ProductTags).WithDefaultHeader().AsString())
+            .AddColumn(column => column.ForMember(c => c.ProductTags).WithHeader("Tags",false,false).AsString())
             .AddColumn(column => column.ForMember(c => c.ProductType).WithDefaultHeader().AsEnum().WithDictionary(productTypeEnumDictionary))
             .AddColumn(column => column.ForMember(c => c.Date).WithDefaultHeader().AsDate())
             .AddColumn(column => column.ForMember(c => c.Visible).WithDefaultHeader().AsCheckbox().WithClickFunction("onVisibleClick"))
-            .AddColumn(column => column.ForNone().WithHeader(String.Empty).AsCustom().WithRender("renderButtons"))
-            .BuildAjaxTable("example", "./Index?handler=PagedRecords",25);
+            .AddColumn(column => column.ForNone().WithHeader("عملیات").AsCustom().WithRender("renderButtons"))
+            .BuildAjaxTable("example", "./Index?handler=PagedRecords");
 ```
 ## Ajax Method
   Datatable.Dotnet will call the ajax method that is provided to it. Here is the things you should keep in mind.
