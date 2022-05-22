@@ -1,6 +1,7 @@
 
 
 
+
 # DataTable Js .Net Core Implementation With Server-Side Processing and Strongly Typed syntax.
 
 This Package is an **unofficial** easy to use, .Net Core implementation of [DataTable.js](https://datatables.net/) with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort.
@@ -14,14 +15,14 @@ This Package is an **unofficial** easy to use, .Net Core implementation of [Data
 2. Depending on what type of .Net project you are using, Add these lines  of code to the end of **.AddMvcControllersWithView()** Or **AddRazorPages()**
 
 For MVC projects:
-```
+```c#
 builder.Services.AddRazorPages().AddMvcOptions(options => {
         options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
 });
 ```
 
 For Razor Page Projects:
-``` 
+```c#
 builder.Services.AddControllersWithViews().AddMvcOptions(options => {
     options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
 });
@@ -30,7 +31,7 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
 3. Add some setting to your appsettings.json file. 
 
  
-```
+```js
 
   "DataTableSetting": {
     "DefaultPageSize": 25,
@@ -81,7 +82,7 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
 |**Checked** and **Unchecked**| Specific to **Checkbox** column type and for creating search Filter with dropdown. Note that the Filter will also contain "Header.All" |
 
 4. In your Program.cs, add AddDatatable() to dependency injection like this:
-```
+```c#
  
 builder.Services.AddDatatable(builder.Configuration.GetSection("DatatableSetting"));
 
@@ -89,7 +90,8 @@ builder.Services.AddDatatable(builder.Configuration.GetSection("DatatableSetting
 
 ## Building the Script
 You can use the injected IDatatableBuilder< Your-View-Model> in your controller. For example for a viewModel like this:
-```
+```c#
+       public class ProductViewModel{
         [Display(Name="Id")]
         public int Id { get; set; }
         [Display(Name="Product Type")]
@@ -102,6 +104,7 @@ You can use the injected IDatatableBuilder< Your-View-Model> in your controller.
         public bool Visible { get; set; }
         [Display(Name="Product Tags")]
         public virtual IEnumerable<string> ProductTags { get; set; }
+        }
     public enum ProductTypeEnum
 {
     Book = 1,
@@ -110,7 +113,7 @@ You can use the injected IDatatableBuilder< Your-View-Model> in your controller.
 }
 ```
 You can inject the IDatatableBuilder like this:
-```
+```c#
     private readonly IDatatableBuilder<ProductViewModel> _tableBuilder;
     public ProductController(IDatatableBuilder<ProductViewModel> tableBuilder)
     {
@@ -120,7 +123,7 @@ You can inject the IDatatableBuilder like this:
  Now, user the injected service to create a datatable script
 
 ### Example
-```
+```c#
         var productTypeEnumDictionary = new Dictionary<int, string>
             {
                 {(int)ProductTypeEnum.Book,"Books" },
@@ -131,12 +134,12 @@ You can inject the IDatatableBuilder like this:
             .AddColumn(column => column.ForMember(c => c.Id).WithDefaultHeader().AsInt().WithDefaultFormat())
             .AddColumn(column => column.ForMember(c => c.Name).WithDefaultHeader().AsString())
             .AddColumn(column => column.ForMember(c => c.Desciption).WithDefaultHeader().AsString())
-            .AddColumn(column => column.ForMember(c => c.ProductTags).WithDefaultHeader().AsString())
+            .AddColumn(column => column.ForMember(c => c.ProductTags).WithHeader("Tags",false,false).AsString())
             .AddColumn(column => column.ForMember(c => c.ProductType).WithDefaultHeader().AsEnum().WithDictionary(productTypeEnumDictionary))
             .AddColumn(column => column.ForMember(c => c.Date).WithDefaultHeader().AsDate())
             .AddColumn(column => column.ForMember(c => c.Visible).WithDefaultHeader().AsCheckbox().WithClickFunction("onVisibleClick"))
-            .AddColumn(column => column.ForNone().WithHeader(String.Empty).AsCustom().WithRender("renderButtons"))
-            .BuildAjaxTable("example", "./Index?handler=PagedRecords",25);
+            .AddColumn(column => column.ForNone().WithHeader("Operation").AsCustom().WithRender("renderButtons"))
+            .BuildAjaxTable("example", "./Index?handler=PagedRecords");
 ```
 ## Ajax Method
   Datatable.Dotnet will call the ajax method that is provided to it. Here is the things you should keep in mind.
@@ -153,7 +156,7 @@ You can inject the IDatatableBuilder like this:
  - For Adding dynamic filter and order to my query, [Dynamic Linq](https://www.nuget.org/packages/System.Linq.Dynamic.Core/) is a good option.
  - After applying sort and search we are calling ApplyPaginationAsync() which is connecting to database. Use this pattern for minimizing the amount of data returned from the database.
 ### Example:
-```
+```c#
 public async Task<JsonResult> GetPagedRecords(DataTableInput datatableRequest)
     {
         var records = _db.Products
@@ -196,7 +199,7 @@ public async Task<JsonResult> GetPagedRecords(DataTableInput datatableRequest)
 ```
 ## Loading the table on Page/View
 ### Simple call
-```
+```html
 <table id="example" class="display">
 </table>
 <script>
@@ -204,7 +207,7 @@ public async Task<JsonResult> GetPagedRecords(DataTableInput datatableRequest)
 </script>
 ```
 If you have custom rendering, or checkbox with click function, it would be like:
-```
+```html
 <table id="example" class="display">
 </table>
 <script>
