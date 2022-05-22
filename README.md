@@ -2,33 +2,50 @@
 
 
 
-# DataTable Js .Net Core Implementation With Server-Side Processing and Strongly Typed syntax.
 
-This Package is an **unofficial** easy to use, .Net Core implementation of [DataTable.js](https://datatables.net/) with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort.
 
-**Note:** If you need any help on bootstrapping the package, contract me. I'll be happy to help.
-**Note:** If you need any more customization please visit the [Github Page For DataTable.Dotnet](https://github.com/ghaagh/Datatable.Dotnet). Any feature and bug-fix pull request is appreciated.
+
+# DataTable.Dotnet
+
+This Package is an **unofficial** easy to use, .Net Core implementation of [DataTable.js](https://datatables.net/)
+## Features
+
+ - Strongly-Typed script creation based on your viewmodel.
+ - Support of **[Display(Name="")]** annotation for headers.
+ - Support of AJAX and server-side pagination.
+ - Support of column searching and sorting plus global search.
+ - Customizable for other languages.
+ - Support of DatePicker plugin for filtering the date fields.
+ - Support of Formating Numbers.
+ - Support of custom columns.
+
+**Note:** Please report any possible bug or future request via Github or my mail.
 
 ## Configuration
 1.  Add neessary Javascript and Style libraries from the [official website](https://datatables.net/) to your web page/ View  or _Layout.cshtml.
 
 2. Depending on what type of .Net project you are using, Add these lines  of code to the end of **.AddMvcControllersWithView()** Or **AddRazorPages()**
 
-For MVC projects:
+For Razor Page Projects:
 ```c#
 builder.Services.AddRazorPages().AddMvcOptions(options => {
         options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
 });
 ```
 
-For Razor Page Projects:
+For MVC projects:
 ```c#
 builder.Services.AddControllersWithViews().AddMvcOptions(options => {
     options.ModelBinderProviders.Insert(0, new DataTableInputBinderProvider());
 });
 ```
 
-3. Add some setting to your appsettings.json file. 
+3. Add this line to your Program.cs to add Datatable.Dotnet services to your dependency injection provider:
+
+```c#
+builder.Services.AddDatatable(builder.Configuration.GetSection("DatatableSetting"));
+```
+4. Add some setting to your appsettings.json file. 
 
  
 ```js
@@ -81,12 +98,7 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
 |**DateColumnPluginCall**| This line will be the place for calling your desired **DatePicker** plugin. If you don't want that. Empty the string|
 |**Checked** and **Unchecked**| Specific to **Checkbox** column type and for creating search Filter with dropdown. Note that the Filter will also contain "Header.All" |
 
-4. In your Program.cs, add AddDatatable() to dependency injection like this:
-```c#
- 
-builder.Services.AddDatatable(builder.Configuration.GetSection("DatatableSetting"));
 
-```
 
 ## Building the Script
 You can use the injected IDatatableBuilder< Your-View-Model> in your controller. For example for a viewModel like this:
@@ -112,15 +124,15 @@ You can use the injected IDatatableBuilder< Your-View-Model> in your controller.
     Other
 }
 ```
-You can inject the IDatatableBuilder like this:
+You can inject the IDatatableBuilder to your controller/razor page like this:
 ```c#
     private readonly IDatatableBuilder<ProductViewModel> _tableBuilder;
-    public ProductController(IDatatableBuilder<ProductViewModel> tableBuilder)
+    public IndexModel(IDatatableBuilder<ProductViewModel> tableBuilder)
     {
         _tableBuilder = tableBuilder;
     }
 ```
- Now, user the injected service to create a datatable script
+ Now, use the injected service to create a datatable script.
 
 ### Example
 ```c#
@@ -139,7 +151,7 @@ You can inject the IDatatableBuilder like this:
             .AddColumn(column => column.ForMember(c => c.Date).WithDefaultHeader().AsDate())
             .AddColumn(column => column.ForMember(c => c.Visible).WithDefaultHeader().AsCheckbox().WithClickFunction("onVisibleClick"))
             .AddColumn(column => column.ForNone().WithHeader("Operation").AsCustom().WithRender("renderButtons"))
-            .BuildAjaxTable("example", "./Index?handler=PagedRecords");
+            .BuildAjaxTable("example", "./Index?handler=PagedRecords",25);
 ```
 ## Ajax Method
   Datatable.Dotnet will call the ajax method that is provided to it. Here is the things you should keep in mind.
@@ -166,7 +178,7 @@ public async Task<JsonResult> GetPagedRecords(DataTableInput datatableRequest)
 
         //Get the total count before filtering. it is needed by datatable
         var totalRecords = await records.CountAsync(); ;
-
+        string[] globalSearchColumns = new string[5] { "Id", "Name", "Description", "ProductTags.Tag", "Visible" };
         //Order and search globally and by column
         if (!string.IsNullOrEmpty(datatableRequest.Search))
             records = _queryHelper.ApplyGlobalSearch(records, datatableRequest.Search, globalSearchColumns);
