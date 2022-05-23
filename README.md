@@ -19,12 +19,16 @@ This Package is an **unofficial** easy to use, .Net Core implementation of [Data
  - Support of Formating Numbers.
  - Support of custom columns.
 
-**Note:** Please report any possible bug or future request via Github or my mail.
+**Note:** Please report any possible bug or feature request via Github or my mail.
 
 ## Configuration
 1.  Add neessary Javascript and Style libraries from the [official website](https://datatables.net/) to your web page/ View  or _Layout.cshtml.
+2. Install the Nuget package :
+```
+Install-Package Datatable.Dotnet
+```
 
-2. Depending on what type of .Net project you are using, Add these lines  of code to the end of **.AddMvcControllersWithView()** Or **AddRazorPages()**
+3. Depending on what type of .Net project you are using, Add these lines  of code to the end of **.AddMvcControllersWithView()** Or **AddRazorPages()**
 
 For Razor Page Projects:
 ```c#
@@ -40,12 +44,12 @@ builder.Services.AddControllersWithViews().AddMvcOptions(options => {
 });
 ```
 
-3. Add this line to your Program.cs to add Datatable.Dotnet services to your dependency injection provider:
+4. Add this line to your Program.cs to add Datatable.Dotnet services to your dependency injection provider:
 
 ```c#
 builder.Services.AddDatatable(builder.Configuration.GetSection("DatatableSetting"));
 ```
-4. Add some setting to your appsettings.json file. 
+5. Add some setting to your appsettings.json file. 
 
  
 ```js
