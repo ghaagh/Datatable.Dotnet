@@ -146,12 +146,12 @@ You can inject the IDatatableBuilder to your controller/razor page like this:
             .AddColumn(column => column.ForMember(c => c.Id).WithDefaultHeader().AsInt().WithDefaultFormat())
             .AddColumn(column => column.ForMember(c => c.Name).WithDefaultHeader().AsString())
             .AddColumn(column => column.ForMember(c => c.Desciption).WithDefaultHeader().AsString())
-            .AddColumn(column => column.ForMember(c => c.ProductTags).WithHeader("Tags",false,false).AsString())
+            .AddColumn(column => column.ForMember(c => c.ProductTags).WithDefaultHeader().AsString())
             .AddColumn(column => column.ForMember(c => c.ProductType).WithDefaultHeader().AsEnum().WithDictionary(productTypeEnumDictionary))
             .AddColumn(column => column.ForMember(c => c.Date).WithDefaultHeader().AsDate())
             .AddColumn(column => column.ForMember(c => c.Visible).WithDefaultHeader().AsCheckbox().WithClickFunction("onVisibleClick"))
             .AddColumn(column => column.ForNone().WithHeader("Operation").AsCustom().WithRender("renderButtons"))
-            .BuildAjaxTable("example", "./Index?handler=PagedRecords",25);
+            .BuildAjaxTable(tableId: "example", ajaxAddress: "./Index?handler=PagedRecords", pageSize: 25);
 ```
 ## Ajax Method
   Datatable.Dotnet will call the ajax method that is provided to it. Here is the things you should keep in mind.

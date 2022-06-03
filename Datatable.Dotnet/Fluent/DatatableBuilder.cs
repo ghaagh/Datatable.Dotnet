@@ -50,7 +50,7 @@ namespace Datatable.Dotnet.Fluent
 
             stringBuilder.Append(GetDatatableBodyString(Columns, tableId, ajaxAddress));
 
-            stringBuilder.Append(GetFooterString(_setting, pageSize));
+            stringBuilder.Append(GetFooterString(_setting, pageSize,$"{tableId}Datatable"));
             return stringBuilder.ToString();
         }
         
@@ -64,7 +64,7 @@ namespace Datatable.Dotnet.Fluent
             return stringBuilder.ToString();
         }
 
-        private static string GetFooterString(DatatableSetting setting, int pageSize)
+        private static string GetFooterString(DatatableSetting setting, int pageSize,string variableName)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendFormat(@"
@@ -72,32 +72,32 @@ namespace Datatable.Dotnet.Fluent
 		        pageLength: {0},
 		        language: {1}
         }});
-		tbl.columns().every(function() {{
+		{3}.columns().every(function() {{
 		let column = this;
 		let header = column.header();
 		$(header).on('click', 'a.asc', function() {{
-			tbl.order([parseInt($(this).attr('data-column')), 'asc']).draw();
+			{3}.order([parseInt($(this).attr('data-column')), 'asc']).draw();
 		}});
 		$(header).on('click', 'a.desc', function() {{
-			tbl.order([parseInt($(this).attr('data-column')), 'desc']).draw();
+			{3}.order([parseInt($(this).attr('data-column')), 'desc']).draw();
 		}});
 		$(header).on('keyup', 'input', function() {{
-			tbl.column($(this).attr('data-column')).search(this.value);
-			tbl.draw();
+			{3}.column($(this).attr('data-column')).search(this.value);
+			{3}.draw();
 		}});
 		$(header).on('change', '.date-picker', function() {{
-			tbl.column($(this).attr('data-column')).search(this.value);
-			tbl.draw();
+			{3}.column($(this).attr('data-column')).search(this.value);
+			{3}.draw();
 		}});
 		$(header).on('change', 'select', function() {{
-			tbl.column($(this).attr('data-column')).search(this.value=='null'?'':this.value);
-            tbl.draw();
+			{3}.column($(this).attr('data-column')).search(this.value=='null'?'':this.value);
+            {3}.draw();
 		    }});
         }});
     {2}
 	}});
 
-", pageSize == 0 ? setting.DefaultPageSize : pageSize, JsonConvert.SerializeObject(setting.Language), setting.Header.DateColumnPluginCall);
+", pageSize == 0 ? setting.DefaultPageSize : pageSize, JsonConvert.SerializeObject(setting.Language), setting.Header.DateColumnPluginCall,variableName);
             return stringBuilder.ToString();
 
         }
@@ -111,7 +111,7 @@ namespace Datatable.Dotnet.Fluent
         private static string GetTableVariablesString(string tableId)
         {
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append("let tbl;\n");
+            stringBuilder.AppendFormat("var {0}Datatable;\n",tableId);
             stringBuilder.AppendFormat("let table = document.getElementById('{0}')\n", tableId);
             stringBuilder.Append("let tableHeader = document.createElement('thead');\n");
             return stringBuilder.ToString();
@@ -173,7 +173,7 @@ namespace Datatable.Dotnet.Fluent
             var index = 0;
             stringBuilder.AppendFormat(@"
 $(function(){{
-		tbl = $('#{0}').DataTable({{
+		{0}Datatable = $('#{0}').DataTable({{
 		proccessing: true,
 		search: true,
 		serverSide: true,

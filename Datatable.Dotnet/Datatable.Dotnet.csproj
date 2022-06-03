@@ -14,7 +14,7 @@
     <AssemblyVersion>0.9.01.00</AssemblyVersion>
     <FileVersion></FileVersion>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <Version>1.0.2.1</Version>
+    <Version>1.0.2.4</Version>
     <Authors>Iman.Esmaili</Authors>
     <Description>This Package is an unofficial easy to use implementation of DataTable.js with built-in support for: Server-Side Pagination, Server-Side Ordering, Server-Side Global and Column Search, Build In DatePicker for Date Columns and Sort. 
 </Description>
@@ -22,7 +22,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/ghaagh/Datatable.Dotnet</RepositoryUrl>
     <PackageTags>Datatable.js;.NET Core;Ajax;Server-Side;Pagination;Search;Sort;Tag-Helper</PackageTags>
-    <PackageReleaseNotes>Added fluent datatable generation code, Added added storng-type for viewmodels</PackageReleaseNotes>
+    <PackageReleaseNotes>Now you can access the created table via javascript functions, this is usefull for export functionallity</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
